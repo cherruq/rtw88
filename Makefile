@@ -42,6 +42,21 @@ ccflags-y += -DCONFIG_RTW88_DEBUG=1
 ccflags-y += -DCONFIG_RTW88_DEBUGFS=1
 ccflags-y += -D__CHECK_ENDIAN__
 
+# ==========================================
+# Feature Test: devm_kmemdup_array
+# ==========================================
+HAS_IN_DEVRES := $(shell grep -q "devm_kmemdup_array" $(KSRC)/include/linux/device/devres.h 2>/dev/null && echo y)
+HAS_IN_DEVICE := $(shell grep -q "devm_kmemdup_array" $(KSRC)/include/linux/device.h 2>/dev/null && echo y)
+
+ifeq ($(HAS_IN_DEVRES),y)
+	ccflags-y += -DDEVM_KMEMDUP_ARRAY_IN_DEVRES
+	EXTRA_CFLAGS += -DDEVM_KMEMDUP_ARRAY_IN_DEVRES
+else ifeq ($(HAS_IN_DEVICE),y)
+	ccflags-y += -DDEVM_KMEMDUP_ARRAY_IN_DEVICE
+	EXTRA_CFLAGS += -DDEVM_KMEMDUP_ARRAY_IN_DEVICE
+endif
+# ==========================================
+
 obj-m		+= rtw_core.o
 rtw_core-objs	+= main.o \
 		   led.o \
